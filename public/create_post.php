@@ -18,7 +18,11 @@
         </div>
     </header>
     <main>
-        <section></section>
+        <section class="creat-post-section">
+<div class="create-post-section__inner">
+    <button>Add a cover image</button>
+</div>
+        </section>
     </main>
 </body>
 
