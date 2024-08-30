@@ -40,4 +40,4 @@ header('Content-Type: application/json');
 
 // Encode the response array to JSON and send it
 echo json_encode($response);
-?>
+
