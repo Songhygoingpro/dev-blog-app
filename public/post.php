@@ -1,4 +1,3 @@
-
 <?php
 
 // Connect to the database
@@ -32,8 +31,14 @@ $post = $result->fetch_assoc();
 
 $pageTitle = $post['title'];
 include '../includes/header.php';
+include "../src/posts.php";
+$posts = getAllPosts($conn);
 
 $addedTags = explode(', ', $post['tags']);
+
+foreach ($posts as $postss) {
+    $postUrl = 'post.php?id=' . $postss['id'];
+}
 ?>
 
 <main>
@@ -52,7 +57,7 @@ $addedTags = explode(', ', $post['tags']);
                                 <p class='text-sm'><?= (new DateTime($post['created_at']))->format('d M Y') ?></p>
                             </div>
                         </div>
-                      <h1 class="text-3xl lg:text-5xl font-bold"> <?= $post['title'] ?> </h1>
+                        <h1 class="text-3xl lg:text-5xl font-bold"> <?= $post['title'] ?> </h1>
                         <?php if ($post['tags']) : ?>
                             <ul class="tags flex gap-2">
                                 <?php
@@ -63,53 +68,179 @@ $addedTags = explode(', ', $post['tags']);
                             </ul>
                         <?php endif; ?>
                         <div class="flex flex-col gap-4"><?= $post['content'] ?></div>
-                        </di>
-                    <?php endif; ?>
-
                     </div>
+                <?php endif; ?>
+
             </div>
+        </div>
     </section>
 </main>
+<?php
+// Assuming $posts is an array containing the posts fetched from your database
+
+echo '<script>';
+echo 'let postTitles = [];'; // Initialize the JavaScript array
+
+// Loop through the posts and add each title to the JavaScript array
+foreach ($posts as $postss) {
+
+    $postUrl = 'post.php?id=' . $postss['id'];
+
+    $title_and_postUrl = ['title' => $postss['title'], 'post_url' => $postUrl];
+
+    echo 'postTitles.push(' . json_encode($title_and_postUrl) . ');'; // Encode each title as a JavaScript string
+}
+
+echo '</script>';
+?>
+
+<script src="../assets/js/script.js"></script>
 <link href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.25.0/themes/prism-tomorrow.min.css" rel="stylesheet" />
 <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.25.0/prism.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.28.0/prism.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.28.0/components/prism-javascript.min.js"></script>
 <script>
-    const availableTags = [
-  { name: "webdev", color: "lightblue" },
-  { name: "javascript", color: "lightgreen" },
-  { name: "css", color: "lightyellow" },
-  { name: "html", color: "orange" }, // Keep the original color
-  { name: "react", color: "lightcoral" },
-  { name: "nodejs", color: "lightpurple" },
-  { name: "php", color: "lightblue" },
-  { name: "python", color: "lightseagreen" },
-  { name: "java", color: "limegreen" },
-  { name: "c#", color: "lightcyan" },
-  { name: "ruby", color: "lightskyblue" },
-  { name: "go", color: "lightslategray" },
-  { name: "vue.js", color: "lightblue" },
-  { name: "angular", color: "lightindigo" },
-  { name: "laravel", color: "lightviolet" },
-  { name: "django", color: "lightmagenta" },
-  { name: "mysql", color: "darkmagenta" },
-  { name: "postgresql", color: "deeppink" },
-  { name: "mongodb", color: "hotpink" },
-  { name: "redis", color: "lightpink" },
-  { name: "devops", color: "lightcoral" },
-  { name: "cloud computing", color: "lightsalmon" },
-  { name: "aws", color: "lightorange" },
-  { name: "azure", color: "darkorange" },
-  { name: "gcp", color: "chocolate" }, // Keep the original color
-  { name: "docker", color: "saddlebrown" },
-  { name: "kubernetes", color: "sandybrown" },
-  { name: "ai", color: "gold" },
-  { name: "ml", color: "yellowgreen" },
-  { name: "data science", color: "lightgreen" },
-  { name: "blockchain", color: "lawngreen" },
-  { name: "cybersecurity", color: "chartreuse" },
-  { name: "iot", color: "lightgreen" },
-  { name: "ar", color: "lightgreen" },
-  { name: "vr", color: "palegreen" }
-];
+    const availableTags = [{
+            name: "webdev",
+            color: "lightblue"
+        },
+        {
+            name: "javascript",
+            color: "lightgreen"
+        },
+        {
+            name: "css",
+            color: "lightyellow"
+        },
+        {
+            name: "html",
+            color: "orange"
+        }, // Keep the original color
+        {
+            name: "react",
+            color: "lightcoral"
+        },
+        {
+            name: "nodejs",
+            color: "lightpurple"
+        },
+        {
+            name: "php",
+            color: "lightblue"
+        },
+        {
+            name: "python",
+            color: "lightseagreen"
+        },
+        {
+            name: "java",
+            color: "limegreen"
+        },
+        {
+            name: "c#",
+            color: "lightcyan"
+        },
+        {
+            name: "ruby",
+            color: "lightskyblue"
+        },
+        {
+            name: "go",
+            color: "lightslategray"
+        },
+        {
+            name: "vue.js",
+            color: "lightblue"
+        },
+        {
+            name: "angular",
+            color: "lightindigo"
+        },
+        {
+            name: "laravel",
+            color: "lightviolet"
+        },
+        {
+            name: "django",
+            color: "lightmagenta"
+        },
+        {
+            name: "mysql",
+            color: "darkmagenta"
+        },
+        {
+            name: "postgresql",
+            color: "deeppink"
+        },
+        {
+            name: "mongodb",
+            color: "hotpink"
+        },
+        {
+            name: "redis",
+            color: "lightpink"
+        },
+        {
+            name: "devops",
+            color: "lightcoral"
+        },
+        {
+            name: "cloud computing",
+            color: "lightsalmon"
+        },
+        {
+            name: "aws",
+            color: "lightorange"
+        },
+        {
+            name: "azure",
+            color: "darkorange"
+        },
+        {
+            name: "gcp",
+            color: "chocolate"
+        }, // Keep the original color
+        {
+            name: "docker",
+            color: "saddlebrown"
+        },
+        {
+            name: "kubernetes",
+            color: "sandybrown"
+        },
+        {
+            name: "ai",
+            color: "gold"
+        },
+        {
+            name: "ml",
+            color: "yellowgreen"
+        },
+        {
+            name: "data science",
+            color: "lightgreen"
+        },
+        {
+            name: "blockchain",
+            color: "lawngreen"
+        },
+        {
+            name: "cybersecurity",
+            color: "chartreuse"
+        },
+        {
+            name: "iot",
+            color: "lightgreen"
+        },
+        {
+            name: "ar",
+            color: "lightgreen"
+        },
+        {
+            name: "vr",
+            color: "palegreen"
+        }
+    ];
 
     const tags = document.querySelectorAll('.tag');
 
@@ -117,9 +248,27 @@ $addedTags = explode(', ', $post['tags']);
     for (let addedTag of tags) {
 
         const tagData = availableTags.find(tag => tag.name === addedTag.textContent.slice(1));
-        const tagColor = tagData ? tagData.color : 'gray';
+        const tagColor = tagData ? tagData.color : 'lightgray';
         addedTag.style = `background-color: ${tagColor}; `;
     }
+
+    document.addEventListener('DOMContentLoaded', (event) => {
+        // Get user code
+        const userCodeElement = document.getElementById('userCode');
+        let code = userCodeElement.innerText.trim();
+
+        // Format the code using Prettier
+        const formattedCode = prettier.format(code, {
+            parser: "babel",
+            plugins: prettierPlugins,
+        });
+
+        // Replace innerText with formatted code
+        userCodeElement.textContent = formattedCode;
+
+        // Highlight the formatted code
+        hljs.highlightElement(userCodeElement);
+    });
 </script>
 
 <?php

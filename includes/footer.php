@@ -41,5 +41,6 @@
 
 <!-- JavaScript Files -->
 <script src="../assets/js/script.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.5.0/highlight.min.js"></script>
 </body>
 </html>

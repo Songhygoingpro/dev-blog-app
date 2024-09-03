@@ -24,21 +24,29 @@
     <main>
         <section class="creat-post-section flex justify-center items-center p-4 py-8">
             <div class="create-post-section__inner flex flex-col gap-4">
-                <form action="../src/handlePostSubmission.php" class="flex flex-col gap-4" method="post" id="post-form" enctype="multipart/form-data">
+                <form action="../src/handlePostSubmission.php" class="flex flex-col gap-4" method="post" id="post-form"
+                    enctype="multipart/form-data">
                     <div class="px-12 py-10 w-[990px] min-h-[80vh] bg-white flex flex-col gap-6 rounded-md">
                         <div class="file-upload">
                             <input type="file" id="file-input" name="cover_image" class="hidden" accept="image/*">
-                            <label for="file-input" id="img-upload-button" class="px-4 py-2 border-2 rounded-md border-[#D9D9D9] cursor-pointer">Add a cover image</label>
+                            <label for="file-input" id="img-upload-button"
+                                class="px-4 py-2 border-2 rounded-md border-[#D9D9D9] cursor-pointer">Add a cover
+                                image</label>
                             <div id="image-preview" class="hidden">
                                 <div class="flex gap-4 items-center">
                                     <img id="uploaded-image" src="" alt="Cover Image" class="max-w-40 h-auto">
                                     <div id="loader" class="hidden">Loading...</div>
-                                    <button class="px-4 py-2 border-2 border-gray-400 rounded-md text-center font-semibold" type="button" id="change-image-button">Change</button>
-                                    <button type="button" class="text-red-500 font-semibold" id="remove-image-button">Remove</button>
+                                    <button
+                                        class="px-4 py-2 border-2 border-gray-400 rounded-md text-center font-semibold"
+                                        type="button" id="change-image-button">Change</button>
+                                    <button type="button" class="text-red-500 font-semibold"
+                                        id="remove-image-button">Remove</button>
                                 </div>
                             </div>
                         </div>
-                        <textarea name="title" id="title" class=" text-4xl h-12 font-black focus:outline-none placeholder:text-4xl w-full resize-none overflow-hidden" placeholder="New post title..." oninput="adjustHeight(this)"></textarea>
+                        <textarea name="title" id="title"
+                            class=" text-4xl h-12 font-black focus:outline-none placeholder:text-4xl w-full resize-none overflow-hidden"
+                            placeholder="New post title..." oninput="adjustHeight(this)"></textarea>
                         <div id="tag-container">
                             <input type="text" id="tag-input" placeholder="Add up to 4 tags..." autocomplete="off" />
                             <input type="hidden" name="tags" id="tags-input">
@@ -52,10 +60,19 @@
                             <button type="button" onclick="formatText('`', '`')">
                                 <>
                             </button>
+                            <button type="button" class="imageFile-content-upload">
+                                <input type="file" id="imageFile-content-upload"
+                                    name="content_image" class="hidden" accept="image/*">
+                                <label for="imageFile-content-upload"><img src="../assets/img/image-icon.png"
+                                        class="w-8 h-auto cursor-pointer"></label>
+                            </button>
                         </div>
-                        <textarea name="content" oninput="adjustHeight(this)" type="text" class="resize-none focus:outline-none contentField" placeholder="Write your post content..."></textarea>
+                        <textarea name="content" oninput="adjustHeight(this)" type="text"
+                            class="resize-none focus:outline-none contentField"
+                            placeholder="Write your post content..."></textarea>
                     </div>
-                    <div><button class="px-4 py-2 rounded-md text-white font-bold bg-sky-400" type="submit">Publish</button></div>
+                    <div><button class="px-4 py-2 rounded-md text-white font-bold bg-sky-400"
+                            type="submit">Publish</button></div>
                 </form>
             </div>
         </section>
@@ -69,6 +86,7 @@
         const loader = document.getElementById('loader');
         const fileInput = document.getElementById('file-input');
         const changeImageButton = document.getElementById('change-image-button');
+        let content_image_url = "";
 
         document.getElementById('file-input').addEventListener('change', function(event) {
             const file = event.target.files[0];
@@ -90,6 +108,7 @@
                 reader.readAsDataURL(file); //? Start reading the image file
             }
         });
+
         //? Trigger file input click event
         changeImageButton.addEventListener('click', function() {
 
@@ -110,6 +129,42 @@
             element.style.height = (element.scrollHeight) + 'px'; //? Set it to the scroll height
         }
 
+
+
+        // Handle image contet path
+        document.getElementById('imageFile-content-upload').addEventListener('change', function(event) {
+            const file = event.target.files[0]; // Get the selected file
+
+            if (file) {
+                const formData = new FormData();
+                formData.append('content_image', file); // Append the file to form data
+
+                // Send the file to the server using Fetch API
+                fetch('../src/handlePostSubmission.php', { // Replace with your server upload URL
+                        method: 'POST',
+                        body: formData
+                    })
+                    .then(response => response.text()) // Change to .text() to see the raw response
+                    .then(data => {
+                        console.log(data); // Log the raw response to see what is being returned
+                        try {
+                            const jsonData = JSON.parse(data); // Attempt to parse JSON
+                            if (jsonData.url) {
+                                content_image_url = jsonData.url; // URL of the uploaded image from the server
+                                formatText('!(', ')')
+                            } else {
+                                console.error('Upload failed:', jsonData.error);
+                            }
+                        } catch (error) {
+                            console.error('Error parsing JSON:', error); // Catch JSON parse errors
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Error:', error);
+                    });
+            }
+        });
+
         // Tags
         document.addEventListener('DOMContentLoaded', function() {
             const input = document.getElementById('tag-input');
@@ -119,43 +174,147 @@
 
             let tags = []; // Array to store the selected tags
 
-            const availableTags = [
-  { name: "webdev", color: "lightblue" },
-  { name: "javascript", color: "lightgreen" },
-  { name: "css", color: "lightyellow" },
-  { name: "html", color: "orange" }, // Keep the original color
-  { name: "react", color: "lightcoral" },
-  { name: "nodejs", color: "lightpurple" },
-  { name: "php", color: "lightblue" },
-  { name: "python", color: "lightseagreen" },
-  { name: "java", color: "limegreen" },
-  { name: "c#", color: "lightcyan" },
-  { name: "ruby", color: "lightskyblue" },
-  { name: "go", color: "lightslategray" },
-  { name: "vue.js", color: "lightblue" },
-  { name: "angular", color: "lightindigo" },
-  { name: "laravel", color: "lightviolet" },
-  { name: "django", color: "lightmagenta" },
-  { name: "mysql", color: "darkmagenta" },
-  { name: "postgresql", color: "deeppink" },
-  { name: "mongodb", color: "hotpink" },
-  { name: "redis", color: "lightpink" },
-  { name: "devops", color: "lightcoral" },
-  { name: "cloud computing", color: "lightsalmon" },
-  { name: "aws", color: "lightorange" },
-  { name: "azure", color: "darkorange" },
-  { name: "gcp", color: "chocolate" }, // Keep the original color
-  { name: "docker", color: "saddlebrown" },
-  { name: "kubernetes", color: "sandybrown" },
-  { name: "ai", color: "gold" },
-  { name: "ml", color: "yellowgreen" },
-  { name: "data science", color: "lightgreen" },
-  { name: "blockchain", color: "lawngreen" },
-  { name: "cybersecurity", color: "chartreuse" },
-  { name: "iot", color: "lightgreen" },
-  { name: "ar", color: "lightgreen" },
-  { name: "vr", color: "palegreen" }
-];
+            const availableTags = [{
+                    name: "webdev",
+                    color: "lightblue"
+                },
+                {
+                    name: "javascript",
+                    color: "lightgreen"
+                },
+                {
+                    name: "css",
+                    color: "lightyellow"
+                },
+                {
+                    name: "html",
+                    color: "orange"
+                },
+                {
+                    name: "react",
+                    color: "lightcoral"
+                },
+                {
+                    name: "nodejs",
+                    color: "lightpurple"
+                },
+                {
+                    name: "php",
+                    color: "lightblue"
+                },
+                {
+                    name: "python",
+                    color: "lightseagreen"
+                },
+                {
+                    name: "java",
+                    color: "limegreen"
+                },
+                {
+                    name: "c#",
+                    color: "lightcyan"
+                },
+                {
+                    name: "ruby",
+                    color: "lightskyblue"
+                },
+                {
+                    name: "go",
+                    color: "lightslategray"
+                },
+                {
+                    name: "vue.js",
+                    color: "lightblue"
+                },
+                {
+                    name: "angular",
+                    color: "lightindigo"
+                },
+                {
+                    name: "laravel",
+                    color: "lightviolet"
+                },
+                {
+                    name: "django",
+                    color: "lightmagenta"
+                },
+                {
+                    name: "mysql",
+                    color: "darkmagenta"
+                },
+                {
+                    name: "postgresql",
+                    color: "deeppink"
+                },
+                {
+                    name: "mongodb",
+                    color: "hotpink"
+                },
+                {
+                    name: "redis",
+                    color: "lightpink"
+                },
+                {
+                    name: "devops",
+                    color: "lightcoral"
+                },
+                {
+                    name: "cloud computing",
+                    color: "lightsalmon"
+                },
+                {
+                    name: "aws",
+                    color: "lightorange"
+                },
+                {
+                    name: "azure",
+                    color: "darkorange"
+                },
+                {
+                    name: "gcp",
+                    color: "chocolate"
+                }, // Keep the original color
+                {
+                    name: "docker",
+                    color: "saddlebrown"
+                },
+                {
+                    name: "kubernetes",
+                    color: "sandybrown"
+                },
+                {
+                    name: "ai",
+                    color: "gold"
+                },
+                {
+                    name: "ml",
+                    color: "yellowgreen"
+                },
+                {
+                    name: "data science",
+                    color: "lightgreen"
+                },
+                {
+                    name: "blockchain",
+                    color: "lawngreen"
+                },
+                {
+                    name: "cybersecurity",
+                    color: "chartreuse"
+                },
+                {
+                    name: "iot",
+                    color: "lightgreen"
+                },
+                {
+                    name: "ar",
+                    color: "lightgreen"
+                },
+                {
+                    name: "vr",
+                    color: "palegreen"
+                }
+            ];
 
             // Sort the available tags alphabetically by name when the page loads
             availableTags.sort((a, b) => a.name.localeCompare(b.name));
@@ -216,7 +375,7 @@
             // Add the tag and hide suggestions
             function addTagAndHideSuggestions() {
                 const tagText = input.value.trim().toLowerCase();
-                if (tagText && tags.length < 4 && !tags.includes(tagText)) {
+                if (tagText && tags.length <= 4 && !tags.includes(tagText)) {
                     addTag(tagText);
                 }
                 input.value = ''; // Clear the input field
@@ -234,8 +393,8 @@
 
                 const tagElement = document.createElement('span'); // Create a span element for the tag
                 const tagData = availableTags.find(tag => tag.name === text.slice(1));
-                const tagColor = tagData ? tagData.color : 'gray'; // Default color is 'gray'
-                tagElement.style = `background-color: ${tagColor}; color: white;`;
+                const tagColor = tagData ? tagData.color : 'lightgray'; // Default color is 'gray'
+                tagElement.style = `background-color: ${tagColor}; color: black;`;
 
                 tagElement.className = 'tag'; // Add the 'tag' class
                 if (!text.includes('#')) {
@@ -265,10 +424,12 @@
             function showSuggestions(tags) {
                 suggestionsContainer.innerHTML = ''; // Clear any previous suggestions
                 tags.forEach(tag => {
-                    const suggestion = document.createElement('div'); // Create a div element for each suggestion
+                    const suggestion = document.createElement(
+                        'div'); // Create a div element for each suggestion
                     suggestion.className = 'suggestion'; // Add the 'suggestion' class
                     suggestion.textContent = `#${tag.name}`; // Set the suggestion's text content
-                    suggestionsContainer.appendChild(suggestion); // Add the suggestion to the suggestions container
+                    suggestionsContainer.appendChild(
+                        suggestion); // Add the suggestion to the suggestions container
                 });
                 suggestionsContainer.style.display = 'block'; // Show the suggestions container
             }
@@ -284,16 +445,26 @@
 
         });
 
+        //Format selected text in textarea for content
         function formatText(before, after) {
             const textarea = document.querySelector('.contentField');
             const start = textarea.selectionStart;
             const end = textarea.selectionEnd;
-
             const text = textarea.value;
             const selectedText = text.slice(start, end);
 
             // Insert the format before and after the selected text
-            const newText = text.slice(0, start) + before + selectedText + after + text.slice(end);
+            let newText = text.slice(0, start) + before + selectedText + after + text.slice(end);
+
+            // Check if the format is for an image
+            if (before === '!(' && after === ')') {
+                // Insert the uploaded image URL between the 'before' and 'after'
+                if (typeof content_image_url !== 'undefined' && content_image_url !== '') {
+                    newText = text.slice(0, start) + before + content_image_url + after + text.slice(end);
+                } else {
+                    console.error('Image URL is not defined or empty.');
+                }
+            }
 
             // Update the textarea value
             textarea.value = newText;
@@ -301,7 +472,9 @@
             // Reset cursor position to after the inserted format
             textarea.focus();
             textarea.selectionStart = textarea.selectionEnd = start + before.length + selectedText.length;
+            adjustHeight(textarea);
         }
+
     </script>
 
     <?php include '../includes/footer.php'; ?>

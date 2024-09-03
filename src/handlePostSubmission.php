@@ -3,7 +3,39 @@
 require "../config/database.php";
 session_start();
 
-if ($_SERVER["REQUEST_METHOD"] == "POST") {
+header('Content-Type: application/json'); // Set content type to JSON
+
+// Initialize an array to hold response data
+$response = [];
+
+// Check if a POST request was made and if the file is uploaded
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_FILES['content_image'])) {
+    $uploadDirectory = '../assets/post-img/'; // Directory to save the uploaded image
+
+    // Ensure the uploads directory exists and is writable
+    if (!is_dir($uploadDirectory)) {
+        mkdir($uploadDirectory, 0777, true); // Create the directory if it doesn't exist
+    }
+
+    $fileName = basename($_FILES['content_image']['name']); // Get the file name
+    $targetFile = $uploadDirectory . $fileName; // Define the target file path
+
+    // Move the uploaded file to the target directory
+    if (move_uploaded_file($_FILES['content_image']['tmp_name'], $targetFile)) {
+        // Return the URL of the uploaded file (relative path)
+        $response['url'] = $targetFile; // Respond with JSON containing the file URL
+    } else {
+        http_response_code(500); // Internal Server Error
+        $response['error'] = 'Failed to upload the image.';
+    }
+} else {
+    http_response_code(400); // Bad Request
+    $response['error'] = 'No image uploaded.';
+}
+
+echo json_encode($response); // Send JSON response
+
+if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['title'])) {
 
     $cover_image = $_FILES['cover_image'];
     $post_title = htmlspecialchars($_POST['title']);
@@ -31,18 +63,20 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         $content = preg_replace('/^\#\# (.*)$/m', '<h2 class="font-bold text-2xl">$1</h2>', $content);
 
         // Convert ```code block``` to <pre><code>
-        $content = preg_replace('/```[\r\n]*(.*?)```/s', '<pre><code class="language-javascript">$1</code></pre>', $content);
+        $content = preg_replace('/```[\r\n]*(.*?)```/s', '<pre id="userCode"><code class="language-javascript">$1</code></pre>', $content);
 
         // Convert `code` to <code>
         $content = preg_replace('/(\`|__)(.*?)\1/', '<code>$2</code>', $content);
 
-$content = preg_replace('/<p>\s*<\/p>/', '', $content);
+        $content = preg_replace('/!\((.*?)\)/', '<img class="aspect-w-16 aspect-h-9" src="$1">', $content);
+
+        $content = preg_replace('/<p>\s*<\/p>/', '', $content);
 
 
         // Wrap text blocks in <p> tags, but avoid wrapping inside code blocks
         $lines = explode("\n", $content);
         foreach ($lines as &$line) {
-            if (!preg_match('/^\s*$/', $line) && !preg_match('/<(h1|h2|h3|pre|ul|ol|li|blockquote)[^>]*>/', $line)) {
+            if (!preg_match('/^\s*$/', $line) && !preg_match('/<(h1|h2|h3|pre|ul|img|ol|li|blockquote)[^>]*>/', $line)) {
                 $line = '<p>' . trim($line) . '</p>';
             }
         }
@@ -52,7 +86,6 @@ $content = preg_replace('/<p>\s*<\/p>/', '', $content);
     }
 
     $formattedContent = parseContent($content);
-
 
     // Check if file upload is successful
     if (move_uploaded_file($image, $imagePath)) {

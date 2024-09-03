@@ -21,10 +21,9 @@ $_SESSION['username'] = $username;
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="../assets/css/style.css">
     <link rel="shortcut icon" href="../assets/img/blog-black-favicon.png" type="image/x-icon">
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-tomorrow.min.css" rel="stylesheet" />
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-python.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-ruby.min.js"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.5.0/styles/atom-one-dark.min.css" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prettier/2.8.0/standalone.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prettier/2.8.0/parser-babel.min.js"></script>
     <?php
     // Include additional head content if set
     if (isset($customHeadContent)) {
@@ -38,14 +37,16 @@ $_SESSION['username'] = $username;
         <div class="header_inner flex justify-between py-4 px-4 md:px-8">
             <div class="flex items-center gap-6">
                 <a href="../public/index.php"><img class="w-16 h-10" src="../assets/img/blog-logo.png" alt></a>
-                <div class="hidden relative md:flex">
+                <div class="relative md:flex">
                     <button>
-                        <img class="w-6 h-auto absolute left-3 top-2"
-                            src="../assets/img/Search.png" alt>
+                        <img class="w-6 h-auto absolute left-3 top-2" src="../assets/img/Search.png" alt="Search Icon">
                     </button>
-                    <input class="w-96 h-10 rounded-md indent-12"
-                        placeholder="Search..." type="text">
+                    <input class="search-post w-96 h-10 rounded-md indent-12" placeholder="Search..." type="text">
+                    <div class="post-suggestion absolute top-11 bg-white w-full h-auto hidden shadow-lg border rounded-md z-10"></div>
                 </div>
+
+
+
             </div>
             <div class="flex items-center gap-6">
                 <?php
