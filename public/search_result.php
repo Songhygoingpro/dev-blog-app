@@ -1,21 +1,82 @@
 <?php
 session_start();
-$pageTitle = 'Blog App';
-$customHeadContent = '<meta name="description" content="Home page of My App">';
-include "../includes/header.php";
-include "../src/posts.php";
-$posts = getAllPosts($conn);
 
+include "../config/database.php";
+
+$conn = getDatabaseConnection();
+$search_query = '%' . $_GET['search-query'] . '%'; // Add wildcard characters for partial matches
+
+function getPostsBySearch($conn, $search_query) {
+    // SQL query with relevance sorting and prepared statements
+    $sql = "
+        SELECT 
+            posts.id, 
+            posts.title, 
+            posts.image_path,
+            posts.author,
+            posts.created_at,
+            GROUP_CONCAT(tags.name SEPARATOR ', ') AS tags,
+            (
+                CASE
+                    WHEN posts.title LIKE ? THEN 3  -- High relevance if found in title
+                    WHEN posts.content LIKE ? THEN 2  -- Medium relevance if found in content
+                    ELSE 1  -- Low relevance otherwise
+                END
+            ) AS relevance
+        FROM 
+            posts
+        LEFT JOIN 
+            post_tags ON posts.id = post_tags.post_id
+        LEFT JOIN 
+            tags ON tags.id = post_tags.tag_id
+        WHERE 
+            posts.title LIKE ? OR posts.content LIKE ?  -- Filter by search query
+        GROUP BY 
+            posts.id
+        ORDER BY 
+            relevance DESC,  -- Sort by relevance first
+            posts.created_at DESC";
+
+    // Prepare the SQL statement
+    $stmt = $conn->prepare($sql);
+    if ($stmt === false) {
+        die('Prepare failed: ' . htmlspecialchars($conn->error));
+    }
+
+    // Bind parameters to the statement
+    $stmt->bind_param('ssss', $search_query, $search_query, $search_query, $search_query);
+
+    // Execute the prepared statement
+    $stmt->execute();
+
+    // Get the result set from the executed query
+    $result = $stmt->get_result();
+    
+    // Fetch all results as an associative array
+    $posts = $result->fetch_all(MYSQLI_ASSOC);
+
+    // Close the statement
+    $stmt->close();
+
+    return $posts;
+}
+
+
+// Fetch posts using the search query
+$posts = getPostsBySearch($conn, $search_query);
+
+include '../includes/header.php'; 
 ?>
 
+
 <main>
-    <section class="allPost-seciton py-8 2xl:py-16 px-4 md:px-8 flex justify-center">
-        <div class="allPost-section__inner flex flex-col gap-6 max-w-[1200px] w-full">
-            <h2 class="text-3xl font-bold">
-                All blog posts
-            </h2>
-            <ul class="posts-container grid grid-cols sm:grid-cols-2 lg:grid-cols-3 gap-y-10 gap-x-6">
+    <section class="search-result py-8 2xl:py-16 px-4 md:px-8 flex justify-center">
+        <div class="search-result__inner  flex flex-col gap-6 max-w-[1200px] w-full">
+            <h1 class="text-3xl font-bold">Search results</h1>
+            <ul class="search-result-container  grid grid-cols sm:grid-cols-2 lg:grid-cols-3 gap-y-10 gap-x-6">
+
                 <?php
+
                 foreach ($posts as $post) {
                     // Format the date
                     $date = new DateTime($post['created_at']);
@@ -43,6 +104,7 @@ $posts = getAllPosts($conn);
                     echo '</li>';
                 }
                 ?>
+
             </ul>
         </div>
     </section>
@@ -66,7 +128,6 @@ foreach ($posts as $post) {
 
 echo '</script>';
 ?>
-
 
 <script>
 
@@ -225,4 +286,8 @@ echo '</script>';
    
 </script>
 
-<?php include "../includes/footer.php" ?>
+<?php
+
+include '../includes/footer.php';
+
+?>

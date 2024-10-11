@@ -24,7 +24,7 @@
         <!-- Social Media -->
         <div class="footer-social">
             <h4 class="text-lg font-semibold mb-4">Follow Us</h4>
-            <ul class="flex space-x-4">
+            <ul class="grid md:flex space-x-4">
                 <li><a href="https://twitter.com/yourblog" target="_blank" class="text-gray-400 hover:text-white transition">Twitter</a></li>
                 <li><a href="https://facebook.com/yourblog" target="_blank" class="text-gray-400 hover:text-white transition">Facebook</a></li>
                 <li><a href="https://instagram.com/yourblog" target="_blank" class="text-gray-400 hover:text-white transition">Instagram</a></li>

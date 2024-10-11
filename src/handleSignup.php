@@ -1,6 +1,6 @@
 <?php
 require '../config/database.php';
-
+$conn = getDatabaseConnection();
 session_start();
 
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
@@ -11,6 +11,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $pwdSignup_hashed =  password_hash($pwdSignup, PASSWORD_DEFAULT);
 
     $_SESSION['usernameSignup'] = $usernameSignup;
+    $_SESSION['username'] = $_SESSION['usernameSignup'];
 
     $stmtSignup = $conn->prepare('INSERT INTO users (username, password_hash) VALUES (?,?)');
 

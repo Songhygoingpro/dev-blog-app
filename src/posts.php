@@ -1,7 +1,7 @@
 <?php
 
 include "../config/database.php";
-
+$conn = getDatabaseConnection();
 //Query order by created date
 // src/posts.php
 function getAllPosts($conn) {
@@ -12,6 +12,7 @@ function getAllPosts($conn) {
             posts.content, 
             posts.image_path,
             posts.author,
+            posts.user_id,
             posts.created_at,
             GROUP_CONCAT(tags.name SEPARATOR ', ') AS tags
         FROM 

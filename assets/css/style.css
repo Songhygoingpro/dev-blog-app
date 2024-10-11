@@ -3,7 +3,7 @@ body {
     background-color: #eff0f1;
 }
 
-.allPost-seciton {
+.allPost-seciton, .profile, .search-result  {
     min-height: calc(100vh - 76px);
 }
 
@@ -94,7 +94,6 @@ body {
 
 code {
     width: fit-content;
-    background-color: rgb(208, 208, 208);
+    background-color: rgb(220, 220, 220);
     border-radius: 8px;
-    padding: 0 8px;
 }

@@ -1,6 +1,6 @@
 <?php
 require "../config/database.php";
-
+$conn = getDatabaseConnection();
 session_start();
 
 // Retrieve form data
@@ -10,18 +10,18 @@ $pwdLogin = $_POST['pwdLogin'];
 $_SESSION['usernameLogin'] = $usernameLogin;
 
 // Prepare and execute the query
-$stmt = $conn->prepare('SELECT password_hash FROM users WHERE username = ?');
+$stmt = $conn->prepare('SELECT password_hash, image_path, id FROM users WHERE username = ?');
 $stmt->bind_param("s", $usernameLogin);
 $stmt->execute();
 $result = $stmt->get_result();
-
 // Initialize response array
 $response = [];
 
 if ($result->num_rows > 0) {
     $row = $result->fetch_assoc();
     $pwdHashFromDb = $row['password_hash'];
-
+    $_SESSION['pf_image_path'] = isset($row['image_path']) ? $row['image_path'] : '';
+    $_SESSION['user_id'] = $row['id'];
     // Verify the password
     if (password_verify($pwdLogin, $pwdHashFromDb)) {
         $response['status'] = 'success'; // Password is correct
@@ -40,4 +40,3 @@ header('Content-Type: application/json');
 
 // Encode the response array to JSON and send it
 echo json_encode($response);
-

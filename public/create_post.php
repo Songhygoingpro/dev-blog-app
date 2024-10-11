@@ -84,11 +84,11 @@
         const imagePreview = document.getElementById('image-preview');
         const uploadedImage = document.getElementById('uploaded-image');
         const loader = document.getElementById('loader');
-        const fileInput = document.getElementById('file-input');
+        const cover_pic_file = document.getElementById('file-input');
         const changeImageButton = document.getElementById('change-image-button');
         let content_image_url = "";
 
-        document.getElementById('file-input').addEventListener('change', function(event) {
+        cover_pic_file.addEventListener('change', function(event) {
             const file = event.target.files[0];
             const reader = new FileReader();
 
@@ -112,13 +112,13 @@
         //? Trigger file input click event
         changeImageButton.addEventListener('click', function() {
 
-            fileInput.value = '';
-            fileInput.click(); //? Trigger file input click event
+            cover_pic_file.value = '';
+            cover_pic_file.click(); //? Trigger file input click event
         });
 
         document.getElementById('remove-image-button').addEventListener('click', function() {
             uploadedImage.src = '';
-            fileInput.value = '';
+            cover_pic_file.value = '';
             //? Hide the image preview and show the upload button again
             imagePreview.classList.add('hidden');
             imgUploadButton.classList.remove('hidden');
@@ -131,7 +131,7 @@
 
 
 
-        // Handle image contet path
+        // Handle image content path
         document.getElementById('imageFile-content-upload').addEventListener('change', function(event) {
             const file = event.target.files[0]; // Get the selected file
 
@@ -273,7 +273,7 @@
                 {
                     name: "gcp",
                     color: "chocolate"
-                }, // Keep the original color
+                },
                 {
                     name: "docker",
                     color: "saddlebrown"

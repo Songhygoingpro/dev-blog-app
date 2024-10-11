@@ -2,7 +2,7 @@
 
 require "../config/database.php";
 session_start();
-
+$conn = getDatabaseConnection();
 header('Content-Type: application/json'); // Set content type to JSON
 
 // Initialize an array to hold response data
@@ -38,7 +38,7 @@ echo json_encode($response); // Send JSON response
 if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['title'])) {
 
     $cover_image = $_FILES['cover_image'];
-    $post_title = htmlspecialchars($_POST['title']);
+    $post_title = $_POST['title'];
     $tags = htmlspecialchars($_POST['tags']);
     $tagsArray = explode(',', $tags);
     $content = $_POST['content'];
@@ -66,7 +66,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['title'])) {
         $content = preg_replace('/```[\r\n]*(.*?)```/s', '<pre id="userCode"><code class="language-javascript">$1</code></pre>', $content);
 
         // Convert `code` to <code>
-        $content = preg_replace('/(\`|__)(.*?)\1/', '<code>$2</code>', $content);
+        $content = preg_replace('/(\`|__)(.*?)\1/', '<code class="p-4">$2</code>', $content);
 
         $content = preg_replace('/!\((.*?)\)/', '<img class="aspect-w-16 aspect-h-9" src="$1">', $content);
 
